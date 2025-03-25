@@ -3,7 +3,7 @@ import contextlib
 from typing import Union
 
 from cachetools import TTLCache
-from pyrogram import errors, types, Client, enums
+from pyrogram import Client, enums, errors, types
 
 from src.logger import LOGGER
 
@@ -31,7 +31,7 @@ async def get_url(message_1: types.Message) -> Union[str, None]:
                     offset, length = entity.offset, entity.length
                     break
 
-    return None if offset in (None,) else text[offset: offset + length]
+    return None if offset in (None,) else text[offset : offset + length]
 
 
 def extract_argument(text: str, enforce_digit: bool = False) -> str | None:
@@ -81,41 +81,49 @@ async def edit_text(msg: types.Message, text: str, **kwargs) -> types.Message | 
         return None
 
 
-async def join_ub(chat_id: int, c: Client, ub: Client):
+async def join_ub(c: Client, ub: Client, chat_id: int):
     """Handles the userbot joining a chat via invite link or approval."""
-    invite_link = chat_invite_cache.get(chat_id, (await c.get_chat(chat_id)).invite_link)
+
+    invite_link = chat_invite_cache.get(
+        chat_id, (await c.get_chat(chat_id)).invite_link
+    )
+
     if not invite_link:
-        raise Exception("Invite link not found!")
+        raise ValueError("Invite link not found!")
 
     chat_invite_cache[chat_id] = invite_link
     invite_link = invite_link.replace("https://t.me/+", "https://t.me/joinchat/")
     user_key = f"{chat_id}:{ub.me.id}"
+
     try:
         await ub.join_chat(invite_link)
         user_status_cache[user_key] = enums.ChatMemberStatus.MEMBER
+
     except errors.InviteRequestSent:
-        with contextlib.suppress(Exception):
+        with contextlib.suppress(errors.RPCError):
             await c.approve_chat_join_request(chat_id=chat_id, user_id=ub.me.id)
+
     except errors.UserAlreadyParticipant:
         user_status_cache[user_key] = enums.ChatMemberStatus.MEMBER
-    except Exception as e:
-        # user_status_cache[user_key] = enums.ChatMemberStatus.BANNED
-        raise Exception(
-            f"⚠️ Something went wrong while joining the chat.\nError: {str(e).replace("Telegram says", "")}"
-        ) from e
+
+    except errors.RPCError as exc:
+        raise RuntimeError(
+            f"⚠️ Something went wrong while joining the chat.\nError: {exc}"
+        ) from exc
 
 
 async def unban_ub(c: Client, chat_id: int, user_id: int):
     try:
         await c.unban_chat_member(chat_id=chat_id, user_id=user_id)
-    except Exception as e:
-        raise Exception(
-            f"⚠️ Something went wrong while un-banning the my assistant.\nError:"
-            + str(e).replace("Telegram says", "")
-        ) from e
+    except errors.RPCError as exc:
+        raise RuntimeError(
+            f"⚠️ Something went wrong while unbanning the assistant.\nError: {exc}"
+        ) from exc
 
 
-async def check_user_status(c: Client, chat_id: int, user_id: int) -> enums.ChatMemberStatus:
+async def check_user_status(
+    c: Client, chat_id: int, user_id: int
+) -> enums.ChatMemberStatus:
     user_key = f"{chat_id}:{user_id}"
     user_status = user_status_cache.get(user_key, None)
     if not user_status:
