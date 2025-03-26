@@ -1,3 +1,8 @@
+#  Copyright (c) 2025 AshokShau.
+#  TgMusicBot is an open-source Telegram music bot licensed under AGPL-3.0.
+#  All rights reserved where applicable.
+#
+
 from pyrogram import Client, errors
 from pyrogram.enums import ChatMemberStatus as Cms, ChatType
 from pyrogram.types import Message, ChatMemberUpdated

@@ -1,3 +1,8 @@
+#  Copyright (c) 2025 AshokShau.
+#  TgMusicBot is an open-source Telegram music bot licensed under AGPL-3.0.
+#  All rights reserved where applicable.
+#
+import re
 from types import NoneType
 
 from pyrogram import Client, types, filters, enums
@@ -39,10 +44,16 @@ def _get_platform_url(platform: str, track_id: str) -> str:
         return f"https://youtube.com/watch?v={track_id}"
     elif platform == "spotify":
         return f"https://open.spotify.com/track/{track_id}"
+    elif platform == "jiosaavn":
+        title, song_id = track_id.rsplit("/", 1)
+        title = title.lower()
+        title = re.sub(r'[\(\)"\',]', "", title)
+        title = title.replace(" ", "-")
+        return f"https://www.jiosaavn.com/song/{title}/{song_id}"
+
     else:
         LOGGER.error(f"Unknown platform: {platform}")
         return ""
-
 
 async def update_message_with_thumbnail(
     msg: types.Message, text: str, thumbnail: str, button: types.InlineKeyboardMarkup
@@ -175,9 +186,9 @@ async def play_music(
             f"<b>👤 Requested by:</b> {user_by}"
         )
 
-    curr_song = await chat_cache.get_current_song(chat_id)
-    reply = await edit_text(msg, text, reply_markup=play_button(0, curr_song.duration))
-    await update_progress_bar(reply, 3, curr_song.duration)
+    # curr_song = await chat_cache.get_current_song(chat_id)
+    _reply = await edit_text(msg, text, reply_markup=play_button(0, 0))
+    # await update_progress_bar(_reply, 3, curr_song.duration if is_active else 0)
     return
 
 
