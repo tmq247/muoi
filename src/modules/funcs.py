@@ -494,8 +494,7 @@ async def callback_query(_: Client, message: types.CallbackQuery) -> None:
 
     else:
         LOGGER.info("Playing song, data %s", data)
-        platform = data.split("_")[1]
-        song_id = data.split("_")[2]
+        _, platform, song_id = data.split("_", 2)
         await message.answer(f"Playing song for {user.first_name}", show_alert=True)
         reply_message = await edit_text(
             msg=message.message,
