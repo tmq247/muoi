@@ -78,10 +78,7 @@ class MusicBot:
         try:
             client_name = await self._get_client_name(chat_id)
             ub: Client = self.calls[client_name].mtproto_client
-            if ub is None or not hasattr(ub, "me") or ub.me is None:
-                return None
-
-            return ub
+            return None if ub is None or not hasattr(ub, "me") or ub.me is None else ub
         except Exception as e:
             LOGGER.error(f"Error getting client for chat {chat_id}: {e}")
             return None

@@ -3,7 +3,6 @@
 #  All rights reserved where applicable.
 #
 #
-#
 
 import re
 from typing import Optional, Any
@@ -49,6 +48,7 @@ class YouTubeData(MusicService):
     async def get_info(self) -> Optional[PlatformTracks]:
         if not self.is_valid(self.query):
             return None
+
         data = await self._fetch_data(self.query)
         return self._create_platform_tracks(data) if data else None
 
@@ -109,7 +109,8 @@ class YouTubeData(MusicService):
 
     @staticmethod
     async def get_youtube_url(url: str) -> Optional[dict[str, Any]]:
-        search = VideosSearch(url, limit=1)
+        vid_id = url.split("v=")[1] if "v=" in url else url
+        search = VideosSearch(vid_id, limit=1)
         results = await search.next()
         return (
             {
@@ -143,9 +144,7 @@ class YouTubeData(MusicService):
         return {
             "id": track_data.get("id"),
             "name": track_data.get("title"),
-            "duration": YouTubeData.duration_to_seconds(
-                track_data.get("duration", "0:00")
-            ),
+            "duration": YouTubeData.duration_to_seconds(track_data.get("duration", "0:00")),
             "artist": track_data.get("channel", {}).get("name", "Unknown"),
             "cover": track_data.get("thumbnails", [{}])[-1].get("url", ""),
             "year": 0,
@@ -154,6 +153,9 @@ class YouTubeData(MusicService):
 
     @staticmethod
     def duration_to_seconds(duration: str) -> int:
+        if not duration:
+            return 0
+
         parts = duration.split(":")
         if len(parts) == 3:  # Format: H:MM:SS
             hours, minutes, seconds = map(int, parts)
@@ -161,11 +163,12 @@ class YouTubeData(MusicService):
         elif len(parts) == 2:  # Format: MM:SS
             minutes, seconds = map(int, parts)
             return minutes * 60 + seconds
+
         return 0
 
     @staticmethod
     def _create_platform_tracks(data: dict) -> Optional[PlatformTracks]:
-        if data and "results" in data:
+        if data and "results" in data:  
             return PlatformTracks(
                 tracks=[MusicTrack(**track) for track in data["results"]]
             )
