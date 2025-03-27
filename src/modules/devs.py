@@ -25,6 +25,7 @@ from ntgcalls import __version__ as ntgver
 from pyrogram import Client, filters, types, errors
 from pyrogram import __version__ as pyrover
 from pyrogram.enums import ChatType
+from pyrogram.types import LinkPreviewOptions
 from pytgcalls.__version__ import __version__ as pytgver
 
 from config import OWNER_ID
@@ -226,7 +227,7 @@ async def leave_cmd(client, message: types.Message):
 async def ping_cmd(_, message: types.Message):
     chat_id = 1 if message.chat.type == ChatType.PRIVATE else message.chat.id
     reply = await message.reply_text(
-        "🔎 Pinging...", disable_notification=True, disable_web_page_preview=True
+        "🔎 Pinging...", disable_notification=True, link_preview_options=LinkPreviewOptions(is_disabled=True)
     )
     try:
         ping, cpu_usage = await call.stats_call(chat_id=chat_id)

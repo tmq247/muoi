@@ -406,7 +406,6 @@ async def start_clients() -> None:
     if not session_strings:
         LOGGER.error("No STRING session provided. Exiting...")
         raise SystemExit(1)
-
     try:
         await asyncio.gather(
             *[

@@ -7,6 +7,7 @@ import re
 from typing import Union
 
 from pyrogram import types, Client, filters
+from pyrogram.types import LinkPreviewOptions
 
 from src.database import db
 from src.logger import LOGGER
@@ -123,7 +124,7 @@ async def queue_info(_: Client, msg: types.Message) -> None:
         short_text += f"   └ <b>Played Time:</b> {sec_to_min(await call.played_time(chat.id))} min"
         short_text += f"\n\n<b>» Total of {len(_queue)} track(s) in the queue.</b>"
         text = short_text
-    await msg.reply_text(text, disable_web_page_preview=True)
+    await msg.reply_text(text, link_preview_options=LinkPreviewOptions(is_disabled=True))
 
 
 @Client.on_message(filters.command("loop"))

@@ -2,6 +2,7 @@
 #  TgMusicBot is an open-source Telegram music bot licensed under AGPL-3.0.
 #  All rights reserved where applicable.
 #
+import asyncio
 
 from pyrogram import Client, enums
 
@@ -37,9 +38,15 @@ class Telegram(Client):
         await self.call_manager.start_scheduler()
 
     async def stop(self, block=True) -> None:
-        await self.db.close()
-        await self.call_manager.stop_scheduler()
-        await super().stop(block)
+        # tasks = [t for t in asyncio.all_tasks() if t is not asyncio.current_task()]
+        # for task in tasks:
+        #     task.cancel()
+        shutdown_tasks = [
+            self.db.close(),
+            self.call_manager.stop_scheduler(),
+            super().stop(),
+        ]
+        await asyncio.gather(*shutdown_tasks)
 
     @staticmethod
     def _check_config() -> None:

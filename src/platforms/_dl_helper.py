@@ -22,24 +22,22 @@ from src.platforms.dataclass import TrackInfo
 
 
 async def get_cookie_file():
-    cookie_dir = "cookies"
+    cookie_dir = Path("cookies")
     try:
-        if not os.path.exists(cookie_dir):
-            LOGGER.warning(f"Cookie directory '{cookie_dir}' does not exist.")
+        files = await asyncio.to_thread(lambda: list(cookie_dir.glob("*.txt")))
+        if not files:
+            LOGGER.warning("No cookie files found in '%s'.", cookie_dir)
             return None
 
-        files = await asyncio.to_thread(os.listdir, cookie_dir)
-        cookies_files = [f for f in files if f.endswith(".txt")]
+        random_file = random.choice(files)
+        return str(random_file)
 
-        if not cookies_files:
-            LOGGER.warning(f"No cookie files found in '{cookie_dir}'.")
-            return None
-
-        random_file = random.choice(cookies_files)
-        return os.path.join(cookie_dir, random_file)
+    except FileNotFoundError:
+        LOGGER.warning("Cookie directory '%s' does not exist.", cookie_dir)
     except Exception as e:
-        LOGGER.warning(f"Error accessing cookie directory: {e}")
-        return None
+        LOGGER.error("Unexpected error accessing cookie directory '%s': %s", cookie_dir, e)
+
+    return None
 
 
 class YouTubeDownload:
