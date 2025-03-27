@@ -142,7 +142,7 @@ class MusicBot:
                 audio_path=file_path,
                 media_path=file_path,
                 audio_parameters=AudioQuality.MEDIUM if video else AudioQuality.STUDIO,
-                video_parameters=VideoQuality.QHD_2K if video else VideoQuality.SD_360p,
+                video_parameters=VideoQuality.FHD_1080p if video else VideoQuality.SD_360p,
                 video_flags=(
                     MediaStream.Flags.AUTO_DETECT if video else MediaStream.Flags.IGNORE
                 ),
