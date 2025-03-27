@@ -208,7 +208,7 @@ class MusicBot:
 
             thumb = await gen_thumb(song)
             reply = await reply.edit_media(types.InputMediaPhoto(media=thumb, caption=text), reply_markup=play_button(0, song.duration),)
-            await update_progress_bar(reply, 3, song.duration)
+            asyncio.create_task(update_progress_bar(reply, 3, song.duration))
         except Exception as e:
             LOGGER.error(f"Error in _play_song for chat {chat_id}: {e}", exc_info=True)
 

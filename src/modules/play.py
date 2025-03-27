@@ -2,6 +2,7 @@
 #  TgMusicBot is an open-source Telegram music bot licensed under AGPL-3.0.
 #  All rights reserved where applicable.
 #
+import asyncio
 import re
 from types import NoneType
 
@@ -143,7 +144,7 @@ async def play_music(
         reply = await update_message_with_thumbnail(
             msg, format_now_playing(song), thumb, play_button(0, song.duration)
         )
-        await update_progress_bar(reply, 3, song.duration)
+        asyncio.create_task(update_progress_bar(reply, 3, song.duration))
         return
 
     # Handle multiple tracks (queueing playlist/album)
