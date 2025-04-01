@@ -11,7 +11,7 @@ from src.database import db
 from src.modules.jobs import InactiveCallManager
 from src.pytgcalls import call, start_clients
 
-__version__ = "1.0.0"
+__version__ = "1.1.1"
 
 
 class Telegram(Client):

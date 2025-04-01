@@ -93,10 +93,9 @@ async def play_music(
     queue = await chat_cache.get_queue(chat_id)
     is_active = await chat_cache.is_active(chat_id)
     msg = await edit_text(msg, text="🎶 Song found. Downloading...")
-    _track = tracks[0]
-    platform = _track.platform
 
     if len(tracks) == 1:
+        _track = tracks[0]
         song = CachedTrack(
             name=_track.name,
             artist=_track.artist,
@@ -106,7 +105,8 @@ async def play_music(
             file_path=tg_file_path or "",
             thumbnail=_track.cover,
             user=user_by,
-            platform=platform,
+            url=_track.url,
+            platform=_track.platform,
         )
 
         if not song.file_path:
@@ -162,6 +162,7 @@ async def play_music(
                 thumbnail=track.cover,
                 user=user_by,
                 file_path="",
+                url=track.url,
                 platform=track.platform,
             ),
         )
@@ -297,6 +298,7 @@ async def play_audio(c: Client, msg: types.Message) -> None:
                     cover="",
                     duration=await get_audio_duration(file_path),
                     platform="telegram",
+                    url="",
                 )
             ]
         )
