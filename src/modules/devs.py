@@ -31,6 +31,7 @@ from pytgcalls.__version__ import __version__ as pytgver
 from config import OWNER_ID
 from src import db
 from src.logger import LOGGER
+from src.modules.utils.cacher import chat_cache
 from src.modules.utils.play_helpers import del_msg
 from src.pytgcalls import call
 
@@ -321,3 +322,33 @@ async def sys_stats(client, message: types.Message):
 <b>Total Cores:</b> {t_core}
 <b>CPU Frequency:</b> {cpu_freq}""",
     )
+
+
+@Client.on_message(filters.command("activevc") & filters.user(OWNER_ID))
+async def active_vc(_: Client, message: types.Message):
+    active_chats = await chat_cache.get_active_chats()
+    if not active_chats:
+        await message.reply_text("No active voice chats.")
+        return
+
+    text = f"🎵 <b>Active Voice Chats</b> ({len(active_chats)}):\n\n"
+    for chat_id in active_chats:
+        queue_length = await chat_cache.count(chat_id)
+        current_song = await chat_cache.get_current_song(chat_id)
+        if current_song:
+            song_info = (
+                f"🎶 <b>Now Playing:</b> <a href='{current_song.url}'>{current_song.name}</a> - {current_song.artist} ({current_song.duration}s)"
+            )
+        else:
+            song_info = "🔇 No song playing."
+
+        text += (
+            f"➤ <b>Chat ID:</b> <code>{chat_id}</code>\n"
+            f"📌 <b>Queue Size:</b> {queue_length}\n"
+            f"{song_info}\n\n"
+        )
+
+    if len(text) > 4096:
+        text = f"🎵 <b>Active Voice Chats</b> ({len(active_chats)})"
+
+    await message.reply_text(text=text, link_preview_options=LinkPreviewOptions(is_disabled=True))
