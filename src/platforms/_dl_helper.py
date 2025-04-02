@@ -2,6 +2,7 @@
 #  TgMusicBot is an open-source Telegram music bot licensed under AGPL-3.0.
 #  All rights reserved where applicable.
 #
+#
 
 import asyncio
 import os
@@ -17,27 +18,9 @@ from yt_dlp import YoutubeDL, utils
 
 from config import DOWNLOADS_DIR, PROXY_URL
 from src.logger import LOGGER
-from src.platforms._httpx import HttpxClient
-from src.platforms.dataclass import TrackInfo
+from ._httpx import HttpxClient
+from .dataclass import TrackInfo
 
-
-async def get_cookie_file():
-    cookie_dir = Path("cookies")
-    try:
-        files = await asyncio.to_thread(lambda: list(cookie_dir.glob("*.txt")))
-        if not files:
-            LOGGER.warning("No cookie files found in '%s'.", cookie_dir)
-            return None
-
-        random_file = random.choice(files)
-        return str(random_file)
-
-    except FileNotFoundError:
-        LOGGER.warning("Cookie directory '%s' does not exist.", cookie_dir)
-    except Exception as e:
-        LOGGER.error("Unexpected error accessing cookie directory '%s': %s", cookie_dir, e)
-
-    return None
 
 
 class YouTubeDownload:
@@ -49,6 +32,27 @@ class YouTubeDownload:
         self.video_id = track.tc
         self.video_url = f"https://www.youtube.com/watch?v={self.video_id}"
         self.output_file = Path(DOWNLOADS_DIR) / f"{track.tc}.mp3"
+
+    @staticmethod
+    async def get_cookie_file():
+        cookie_dir = "cookies"
+        try:
+            if not os.path.exists(cookie_dir):
+                LOGGER.warning(f"Cookie directory '{cookie_dir}' does not exist.")
+                return None
+
+            files = await asyncio.to_thread(os.listdir, cookie_dir)
+            cookies_files = [f for f in files if f.endswith(".txt")]
+
+            if not cookies_files:
+                LOGGER.warning(f"No cookie files found in '{cookie_dir}'.")
+                return None
+
+            random_file = random.choice(cookies_files)
+            return os.path.join(cookie_dir, random_file)
+        except Exception as e:
+            LOGGER.warning(f"Error accessing cookie directory: {e}")
+            return None
 
     async def process(self) -> Optional[str]:
         """Download the audio from YouTube and return the path to the downloaded file."""
@@ -78,7 +82,7 @@ class YouTubeDownload:
             },
         }
 
-        if cookie_file := await get_cookie_file():
+        if cookie_file := await self.get_cookie_file():
             ydl_opts["cookiefile"] = cookie_file
 
         # Add proxy if configured
@@ -159,7 +163,7 @@ class SpotifyDownload:
 
             chunk_size = 8192  # 8KB chunks
             async with aiofiles.open(self.encrypted_file, "rb") as fin, aiofiles.open(
-                self.decrypted_file, "wb"
+                    self.decrypted_file, "wb"
             ) as fout:
                 while chunk := await fin.read(chunk_size):
                     decrypted_chunk = cipher.decrypt(chunk)
