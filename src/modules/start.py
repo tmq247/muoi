@@ -11,7 +11,7 @@ from pyrogram import Client, filters, types
 from src.database import db
 from src.modules.utils import sec_to_min
 from src.modules.utils.admins import load_admin_cache
-from src.modules.utils.buttons import AddMeButton
+from src.modules.utils.buttons import add_me_button
 from src.modules.utils.play_helpers import (
     check_user_status,
     chat_invite_cache,
@@ -40,7 +40,7 @@ Your ultimate music companion for Telegram voice chats!
 <b>📢 Note:</b> This bot works best in groups and requires admin permissions to function.
     """
 
-    await message.reply_text(text, reply_markup=AddMeButton)
+    await message.reply_text(text, reply_markup=add_me_button(c.me.username))
     return None
 
 
@@ -123,9 +123,7 @@ If you have any questions or concerns about our privacy policy, feel free to con
 <b>Note:</b> This privacy policy is in place to help you understand how your data is handled and to ensure that your experience with {bot_name} is safe and respectful.
     """
 
-    reply = await message.reply_text(text)
-    if isinstance(reply, types.Error):
-        c.logger.warning(f"Error sending privacy policy message: {reply.message}")
+    await message.reply_text(text)
     return
 
 
@@ -170,6 +168,6 @@ async def reload_cmd(c: Client, message: types.Message):
 
 
 @Client.on_message(filters.command("song"))
-async def song_cmd(c: Client, message: types.Message):
+async def song_cmd(_: Client, message: types.Message):
     await message.reply_text("🎶 USE: @SpTubeBot")
     return

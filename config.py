@@ -65,6 +65,10 @@ DOWNLOADS_DIR = getenv("DOWNLOADS_DIR", "downloads")
 "if get_thumb fails, use this image"
 IMG_URL = "https://te.legra.ph/file/6298d377ad3eb46711644.jpg"
 
+"Support group and channel"
+SUPPORT_GROUP = getenv("SUPPORT_GROUP", "https://t.me/GuardxSupport")
+SUPPORT_CHANNEL = getenv("SUPPORT_CHANNEL", "https://t.me/FallenProjects")
+
 def process_cookie_urls(env_value: Optional[str]) -> list[str]:
     """Parse COOKIES_URL environment variable"""
     if not env_value:

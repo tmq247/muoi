@@ -5,6 +5,8 @@
 
 import asyncio
 from pyrogram import types
+
+import config
 from src.logger import LOGGER
 from src.modules.utils.cacher import chat_cache
 
@@ -98,33 +100,34 @@ SupportButton = types.InlineKeyboardMarkup(
         [
             types.InlineKeyboardButton(
                 text="❄ Channel",
-                url="https://t.me/FallenProjects",
+                url=config.SUPPORT_CHANNEL,
             ),
             types.InlineKeyboardButton(
                 text="✨ Group",
-                url="https://t.me/GuardxSupport",
+                url=config.SUPPORT_GROUP,
             ),
         ]
     ]
 )
 
-AddMeButton = types.InlineKeyboardMarkup(
-    [
+def add_me_button(bot_username: str) -> types.InlineKeyboardMarkup:
+    return types.InlineKeyboardMarkup(
         [
-            types.InlineKeyboardButton(
-                text="Add me to your group",
-                url="https://t.me/FallenBeatzBot?startgroup=true",
-            ),
-        ],
-        [
-            types.InlineKeyboardButton(
-                text="❄ Channel",
-                url="https://t.me/FallenProjects",
-            ),
-            types.InlineKeyboardButton(
-                text="✨ Group",
-                url="https://t.me/GuardxSupport",
-            ),
-        ],
-    ]
-)
+            [
+                types.InlineKeyboardButton(
+                    text="Add me to your group",
+                    url=f"https://t.me/{bot_username}?startgroup=true",
+                ),
+            ],
+            [
+                types.InlineKeyboardButton(
+                    text="❄ Channel",
+                    url=config.SUPPORT_CHANNEL,
+                ),
+                types.InlineKeyboardButton(
+                    text="✨ Group",
+                    url=config.SUPPORT_GROUP,
+                ),
+            ],
+        ]
+    )

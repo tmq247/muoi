@@ -9,8 +9,8 @@ from pyrogram.types import Message, ChatMemberUpdated
 
 from src import call
 from src.logger import LOGGER
-from src.modules.utils import SupportButton
 from src.modules.utils.admins import load_admin_cache
+from src.modules.utils.buttons import add_me_button
 from src.modules.utils.cacher import chat_cache
 from src.modules.utils.play_helpers import user_status_cache
 
@@ -44,7 +44,7 @@ If you don't know how to convert, use this guide:
 If you have any questions, join our support group:
 """
     try:
-        await client.send_message(chat.id, text, reply_markup=SupportButton)
+        await client.send_message(chat.id, text, reply_markup=add_me_button(client.me.username))
         await client.leave_chat(chat.id)
     except errors.RPCError:
         pass
