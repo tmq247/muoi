@@ -11,6 +11,7 @@ import re
 from pathlib import Path
 from typing import Optional
 
+from ntgcalls import TelegramServerError
 from pyrogram import errors, Client, types
 from pytgcalls import PyTgCalls, exceptions
 from pytgcalls.types import (
@@ -155,6 +156,9 @@ class MusicBot:
             raise CallError(
                 "No active group call \nPlease start a call and try again"
             ) from e
+        except TelegramServerError:
+            LOGGER.warning(f"Error playing media for chat {chat_id}: TelegramServerError")
+            raise CallError("TelegramServerError\ntry again after some time")
         except exceptions.UnMuteNeeded as e:
             LOGGER.warning(f"Error playing media for chat {chat_id}: {e}")
             raise CallError(
